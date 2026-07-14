@@ -50,6 +50,7 @@ import java.util.Locale
 fun NewTaskScreen(
     formState: NewTaskFormState,
     onBackClick: () -> Unit,
+    onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     onDateSelected: (String) -> Unit,
     onTimeSelected: (String) -> Unit,
@@ -92,6 +93,37 @@ fun NewTaskScreen(
         }
 
         Spacer(modifier = Modifier.height(20.dp))
+        SectionLabel(text = "Title")
+        Spacer(modifier = Modifier.height(10.dp))
+
+        OutlinedTextField(
+            value = formState.title,
+            onValueChange = onTitleChange,
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = TextStyle(
+                color = TextPrimary,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium
+            ),
+            placeholder = {
+                Text(
+                    text = "Task title...",
+                    color = TextSecondary,
+                    fontSize = 20.sp
+                )
+            },
+            singleLine = true,
+            shape = RoundedCornerShape(18.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = SurfaceWhite,
+                unfocusedContainerColor = SurfaceWhite,
+                focusedBorderColor = PrimaryBlue,
+                unfocusedBorderColor = BorderSoft,
+                cursorColor = PrimaryBlue
+            )
+        )
+
+        Spacer(modifier = Modifier.height(18.dp))
         SectionLabel(text = "Description (Optional)")
         Spacer(modifier = Modifier.height(10.dp))
 

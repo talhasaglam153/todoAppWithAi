@@ -6,6 +6,7 @@ enum class AppScreen {
 }
 
 data class NewTaskFormState(
+    val title: String = "",
     val description: String = "",
     val dueDateLabel: String = "Today",
     val dueTimeLabel: String = "Time",
