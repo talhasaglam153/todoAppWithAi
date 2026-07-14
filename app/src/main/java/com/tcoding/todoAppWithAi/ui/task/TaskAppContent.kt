@@ -35,6 +35,9 @@ fun TaskAppContent() {
                         if (task.id == taskId) task.copy(completed = !task.completed) else task
                     }
                 },
+                onTaskDelete = { taskId ->
+                    tasks = tasks.filterNot { it.id == taskId }
+                },
                 onAddTaskClick = { currentScreen = AppScreen.TASK_FORM }
             )
         }

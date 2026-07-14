@@ -69,6 +69,7 @@ fun TaskCategoryChip(
 fun TaskCard(
     task: TaskItem,
     onClick: () -> Unit,
+    onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -116,6 +117,8 @@ fun TaskCard(
 
         Spacer(modifier = Modifier.width(8.dp))
         PriorityDot(priority = task.priority)
+        Spacer(modifier = Modifier.width(10.dp))
+        DeleteTaskButton(onDeleteClick = onDeleteClick)
     }
 }
 
@@ -133,6 +136,25 @@ fun PriorityDot(priority: TaskPriority) {
             .clip(CircleShape)
             .background(color)
     )
+}
+
+@Composable
+fun DeleteTaskButton(onDeleteClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(24.dp)
+            .clip(CircleShape)
+            .background(PriorityHigh.copy(alpha = 0.12f))
+            .clickable(onClick = onDeleteClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "X",
+            color = PriorityHigh,
+            fontWeight = FontWeight.Bold,
+            fontSize = 12.sp
+        )
+    }
 }
 
 @Composable
