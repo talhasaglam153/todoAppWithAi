@@ -2,6 +2,7 @@ package com.tcoding.todoAppWithAi.ui.task
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,12 +21,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,6 +57,21 @@ fun TaskListScreen(
     onAddTaskClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var isSearchVisible by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+    val filteredTasks = remember(tasks, searchQuery) {
+        val query = searchQuery.trim()
+        if (query.isBlank()) {
+            tasks
+        } else {
+            tasks.filter { task ->
+                task.title.contains(query, ignoreCase = true) ||
+                    task.description.contains(query, ignoreCase = true) ||
+                    task.dueLabel.contains(query, ignoreCase = true)
+            }
+        }
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = BackgroundGray,
@@ -75,7 +98,16 @@ fun TaskListScreen(
         ) {
             TaskListHeader(
                 selectedCategory = selectedCategory,
-                onCategorySelected = onCategorySelected
+                onCategorySelected = onCategorySelected,
+                isSearchVisible = isSearchVisible,
+                searchQuery = searchQuery,
+                onSearchQueryChange = { searchQuery = it },
+                onSearchIconClick = {
+                    if (isSearchVisible) {
+                        searchQuery = ""
+                    }
+                    isSearchVisible = !isSearchVisible
+                }
             )
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -99,13 +131,25 @@ fun TaskListScreen(
                 ),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(tasks.size) { index ->
-                    TaskCard(
-                        task = tasks[index],
-                        onClick = { onTaskClick(tasks[index].id) },
-                        onEditClick = { onTaskEdit(tasks[index].id) },
-                        onDeleteClick = { onTaskDelete(tasks[index].id) }
-                    )
+                if (filteredTasks.isEmpty()) {
+                    item {
+                        Text(
+                            text = "No tasks found",
+                            color = TextSecondary,
+                            fontSize = 14.sp,
+                            fontStyle = FontStyle.Italic,
+                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp)
+                        )
+                    }
+                } else {
+                    items(filteredTasks.size) { index ->
+                        TaskCard(
+                            task = filteredTasks[index],
+                            onClick = { onTaskClick(filteredTasks[index].id) },
+                            onEditClick = { onTaskEdit(filteredTasks[index].id) },
+                            onDeleteClick = { onTaskDelete(filteredTasks[index].id) }
+                        )
+                    }
                 }
             }
         }
@@ -115,7 +159,11 @@ fun TaskListScreen(
 @Composable
 private fun TaskListHeader(
     selectedCategory: TaskCategory,
-    onCategorySelected: (TaskCategory) -> Unit
+    onCategorySelected: (TaskCategory) -> Unit,
+    isSearchVisible: Boolean,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    onSearchIconClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -149,7 +197,8 @@ private fun TaskListHeader(
                     .size(54.dp)
                     .clip(CircleShape)
                     .background(BackgroundGray)
-                    .border(width = 1.dp, color = BorderSoft, shape = CircleShape),
+                    .border(width = 1.dp, color = BorderSoft, shape = CircleShape)
+                    .clickable(onClick = onSearchIconClick),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -159,6 +208,26 @@ private fun TaskListHeader(
                     fontWeight = FontWeight.Bold
                 )
             }
+        }
+
+        if (isSearchVisible) {
+            Spacer(modifier = Modifier.height(14.dp))
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = onSearchQueryChange,
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = {
+                    Text(text = "Search tasks...", color = TextSecondary)
+                },
+                singleLine = true,
+                shape = RoundedCornerShape(16.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = SurfaceWhite,
+                    unfocusedContainerColor = SurfaceWhite,
+                    focusedBorderColor = PrimaryBlue,
+                    unfocusedBorderColor = BorderSoft
+                )
+            )
         }
 
         Spacer(modifier = Modifier.height(20.dp))
