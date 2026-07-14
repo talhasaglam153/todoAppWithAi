@@ -2,10 +2,13 @@ package com.tcoding.todoAppWithAi.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val PrimaryBlue = Color(0xFF2563FF)
+val BackgroundGray = Color(0xFFF4F7FE)
+val SurfaceWhite = Color(0xFFFFFFFF)
+val TextPrimary = Color(0xFF0E1730)
+val TextSecondary = Color(0xFF7D8AA8)
+val BorderSoft = Color(0xFFE5EBF8)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val PriorityHigh = Color(0xFFFD4545)
+val PriorityMedium = Color(0xFFF5A500)
+val PriorityLow = Color(0xFF79D68C)
