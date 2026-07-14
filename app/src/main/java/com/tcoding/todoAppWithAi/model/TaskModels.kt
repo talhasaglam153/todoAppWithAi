@@ -16,6 +16,7 @@ enum class TaskPriority {
 data class TaskItem(
     val id: Long,
     val title: String,
+    val description: String = "",
     val dueLabel: String,
     val category: TaskCategory,
     val priority: TaskPriority,

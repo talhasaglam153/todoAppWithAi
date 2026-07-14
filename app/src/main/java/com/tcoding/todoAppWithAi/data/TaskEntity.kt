@@ -10,6 +10,7 @@ import com.tcoding.todoAppWithAi.model.TaskPriority
 data class TaskEntity(
     @PrimaryKey val id: Long,
     val title: String,
+    val description: String,
     val dueLabel: String,
     val category: String,
     val priority: String,
@@ -20,6 +21,7 @@ fun TaskEntity.toDomain(): TaskItem {
     return TaskItem(
         id = id,
         title = title,
+        description = description,
         dueLabel = dueLabel,
         category = enumValueOrDefault(category, TaskCategory.WORK),
         priority = enumValueOrDefault(priority, TaskPriority.MEDIUM),
@@ -31,6 +33,7 @@ fun TaskItem.toEntity(): TaskEntity {
     return TaskEntity(
         id = id,
         title = title,
+        description = description,
         dueLabel = dueLabel,
         category = category.name,
         priority = priority.name,

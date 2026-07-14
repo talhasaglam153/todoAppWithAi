@@ -4,6 +4,7 @@ val sampleTasks = listOf(
     TaskItem(
         id = 1,
         title = "Review Compose UI",
+        description = "Polish spacing, typography and list interactions.",
         dueLabel = "Today, 10:00 AM",
         category = TaskCategory.WORK,
         priority = TaskPriority.HIGH
@@ -11,6 +12,7 @@ val sampleTasks = listOf(
     TaskItem(
         id = 2,
         title = "Buy groceries for dinner",
+        description = "Milk, eggs, pasta and vegetables.",
         dueLabel = "Today, 6:30 PM",
         category = TaskCategory.PERSONAL,
         priority = TaskPriority.MEDIUM
@@ -18,6 +20,7 @@ val sampleTasks = listOf(
     TaskItem(
         id = 3,
         title = "Pay electricity bill",
+        description = "Use mobile banking before due date.",
         dueLabel = "Tomorrow",
         category = TaskCategory.URGENT,
         priority = TaskPriority.HIGH
@@ -25,6 +28,7 @@ val sampleTasks = listOf(
     TaskItem(
         id = 4,
         title = "Read 10 pages of book",
+        description = "Continue from chapter 3.",
         dueLabel = "Yesterday",
         category = TaskCategory.PERSONAL,
         priority = TaskPriority.LOW,

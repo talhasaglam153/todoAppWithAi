@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -69,6 +70,7 @@ fun TaskCategoryChip(
 fun TaskCard(
     task: TaskItem,
     onClick: () -> Unit,
+    onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -106,6 +108,19 @@ fun TaskCard(
                 fontSize = 18.sp,
                 textDecoration = if (task.completed) TextDecoration.LineThrough else TextDecoration.None
             )
+
+            if (task.description.isNotBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = task.description,
+                    color = TextSecondary,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 13.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = task.dueLabel,
@@ -118,6 +133,8 @@ fun TaskCard(
         Spacer(modifier = Modifier.width(8.dp))
         PriorityDot(priority = task.priority)
         Spacer(modifier = Modifier.width(10.dp))
+        EditTaskButton(onEditClick = onEditClick)
+        Spacer(modifier = Modifier.width(8.dp))
         DeleteTaskButton(onDeleteClick = onDeleteClick)
     }
 }
@@ -151,6 +168,25 @@ fun DeleteTaskButton(onDeleteClick: () -> Unit) {
         Text(
             text = "X",
             color = PriorityHigh,
+            fontWeight = FontWeight.Bold,
+            fontSize = 12.sp
+        )
+    }
+}
+
+@Composable
+fun EditTaskButton(onEditClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(24.dp)
+            .clip(CircleShape)
+            .background(PrimaryBlue.copy(alpha = 0.12f))
+            .clickable(onClick = onEditClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "✎",
+            color = PrimaryBlue,
             fontWeight = FontWeight.Bold,
             fontSize = 12.sp
         )

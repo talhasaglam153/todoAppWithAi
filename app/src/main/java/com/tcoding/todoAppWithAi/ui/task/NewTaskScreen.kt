@@ -49,6 +49,8 @@ import java.util.Locale
 @Composable
 fun NewTaskScreen(
     formState: NewTaskFormState,
+    screenTitle: String,
+    submitButtonText: String,
     onBackClick: () -> Unit,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
@@ -85,7 +87,7 @@ fun NewTaskScreen(
                     .padding(end = 18.dp)
             )
             Text(
-                text = "New Task",
+                text = screenTitle,
                 color = TextPrimary,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 36.sp
@@ -253,7 +255,7 @@ fun NewTaskScreen(
                 .height(62.dp)
         ) {
             Text(
-                text = "Create Task",
+                text = submitButtonText,
                 fontWeight = FontWeight.Bold,
                 fontSize = 26.sp
             )

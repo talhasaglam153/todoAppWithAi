@@ -44,6 +44,7 @@ fun TaskListScreen(
     selectedCategory: TaskCategory,
     onCategorySelected: (TaskCategory) -> Unit,
     onTaskClick: (Long) -> Unit,
+    onTaskEdit: (Long) -> Unit,
     onTaskDelete: (Long) -> Unit,
     onAddTaskClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -102,6 +103,7 @@ fun TaskListScreen(
                     TaskCard(
                         task = tasks[index],
                         onClick = { onTaskClick(tasks[index].id) },
+                        onEditClick = { onTaskEdit(tasks[index].id) },
                         onDeleteClick = { onTaskDelete(tasks[index].id) }
                     )
                 }

@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.edit
 import com.tcoding.todoAppWithAi.data.TaskDatabase
 import com.tcoding.todoAppWithAi.data.TaskRepository
 import com.tcoding.todoAppWithAi.model.AppScreen
@@ -18,7 +19,6 @@ import com.tcoding.todoAppWithAi.model.TaskCategory
 import com.tcoding.todoAppWithAi.model.TaskItem
 import com.tcoding.todoAppWithAi.model.sampleTasks
 import kotlinx.coroutines.launch
-import androidx.core.content.edit
 
 @Composable
 fun TaskAppContent() {
@@ -34,6 +34,7 @@ fun TaskAppContent() {
     var currentScreen by remember { mutableStateOf(AppScreen.TASK_LIST) }
     var selectedCategory by remember { mutableStateOf(TaskCategory.ALL) }
     var formState by remember { mutableStateOf(NewTaskFormState()) }
+    var editingTaskId by remember { mutableStateOf<Long?>(null) }
     val tasks by repository.tasksFlow.collectAsState(initial = emptyList())
 
     LaunchedEffect(repository) {
@@ -62,19 +63,37 @@ fun TaskAppContent() {
                         repository.toggleTask(taskId)
                     }
                 },
+                onTaskEdit = { taskId ->
+                    val task = tasks.firstOrNull { it.id == taskId }
+                    if (task != null) {
+                        editingTaskId = taskId
+                        formState = task.toFormState()
+                        currentScreen = AppScreen.TASK_FORM
+                    }
+                },
                 onTaskDelete = { taskId ->
                     scope.launch {
                         repository.deleteTask(taskId)
                     }
                 },
-                onAddTaskClick = { currentScreen = AppScreen.TASK_FORM }
+                onAddTaskClick = {
+                    editingTaskId = null
+                    formState = NewTaskFormState()
+                    currentScreen = AppScreen.TASK_FORM
+                }
             )
         }
 
         AppScreen.TASK_FORM -> {
             NewTaskScreen(
                 formState = formState,
-                onBackClick = { currentScreen = AppScreen.TASK_LIST },
+                screenTitle = if (editingTaskId == null) "New Task" else "Edit Task",
+                submitButtonText = if (editingTaskId == null) "Create Task" else "Save Changes",
+                onBackClick = {
+                    editingTaskId = null
+                    formState = NewTaskFormState()
+                    currentScreen = AppScreen.TASK_LIST
+                },
                 onTitleChange = { formState = formState.copy(title = it) },
                 onDescriptionChange = { formState = formState.copy(description = it) },
                 onDateSelected = { formState = formState.copy(dueDateLabel = it) },
@@ -92,18 +111,24 @@ fun TaskAppContent() {
                     } else {
                         "${formState.dueDateLabel}, ${formState.dueTimeLabel}"
                     }
+                    val existingTask = editingTaskId?.let { taskId ->
+                        tasks.firstOrNull { it.id == taskId }
+                    }
 
                     val newTask = TaskItem(
-                        id = (tasks.maxOfOrNull { it.id } ?: 0L) + 1L,
+                        id = editingTaskId ?: ((tasks.maxOfOrNull { it.id } ?: 0L) + 1L),
                         title = title,
+                        description = formState.description.trim(),
                         dueLabel = dueLabel,
                         category = formState.category,
-                        priority = formState.priority
+                        priority = formState.priority,
+                        completed = existingTask?.completed ?: false
                     )
 
                     scope.launch {
                         repository.addTask(newTask)
                         selectedCategory = TaskCategory.ALL
+                        editingTaskId = null
                         formState = NewTaskFormState()
                         currentScreen = AppScreen.TASK_LIST
                     }
@@ -114,3 +139,18 @@ fun TaskAppContent() {
 }
 
 private const val KEY_TASK_SEED_DONE = "task_seed_done"
+
+private fun TaskItem.toFormState(): NewTaskFormState {
+    val dateAndTime = dueLabel.split(", ", limit = 2)
+    val dateLabel = dateAndTime.getOrNull(0).orEmpty().ifBlank { "Today" }
+    val timeLabel = dateAndTime.getOrNull(1) ?: "Time"
+
+    return NewTaskFormState(
+        title = title,
+        description = description,
+        dueDateLabel = dateLabel,
+        dueTimeLabel = timeLabel,
+        category = category,
+        priority = priority
+    )
+}
