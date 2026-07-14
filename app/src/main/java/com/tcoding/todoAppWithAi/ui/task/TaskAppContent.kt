@@ -15,14 +15,14 @@ fun TaskAppContent() {
     var currentScreen by remember { mutableStateOf(AppScreen.TASK_LIST) }
     var selectedCategory by remember { mutableStateOf(TaskCategory.ALL) }
     var formState by remember { mutableStateOf(NewTaskFormState()) }
+    var tasks by remember { mutableStateOf(sampleTasks) }
 
-    val visibleTasks = remember(selectedCategory) {
+    val visibleTasks =
         if (selectedCategory == TaskCategory.ALL) {
-            sampleTasks
+            tasks
         } else {
-            sampleTasks.filter { it.category == selectedCategory }
+            tasks.filter { it.category == selectedCategory }
         }
-    }
 
     when (currentScreen) {
         AppScreen.TASK_LIST -> {
@@ -30,6 +30,11 @@ fun TaskAppContent() {
                 tasks = visibleTasks,
                 selectedCategory = selectedCategory,
                 onCategorySelected = { selectedCategory = it },
+                onTaskClick = { taskId ->
+                    tasks = tasks.map { task ->
+                        if (task.id == taskId) task.copy(completed = !task.completed) else task
+                    }
+                },
                 onAddTaskClick = { currentScreen = AppScreen.TASK_FORM }
             )
         }

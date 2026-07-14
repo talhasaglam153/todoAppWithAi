@@ -43,6 +43,7 @@ fun TaskListScreen(
     tasks: List<TaskItem>,
     selectedCategory: TaskCategory,
     onCategorySelected: (TaskCategory) -> Unit,
+    onTaskClick: (Long) -> Unit,
     onAddTaskClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -97,7 +98,10 @@ fun TaskListScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(tasks.size) { index ->
-                    TaskCard(task = tasks[index])
+                    TaskCard(
+                        task = tasks[index],
+                        onClick = { onTaskClick(tasks[index].id) }
+                    )
                 }
             }
         }

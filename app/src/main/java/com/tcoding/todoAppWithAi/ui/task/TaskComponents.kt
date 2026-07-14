@@ -66,13 +66,18 @@ fun TaskCategoryChip(
 }
 
 @Composable
-fun TaskCard(task: TaskItem, modifier: Modifier = Modifier) {
+fun TaskCard(
+    task: TaskItem,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(18.dp))
             .background(SurfaceWhite)
             .border(width = 1.dp, color = BorderSoft, shape = RoundedCornerShape(18.dp))
+            .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 14.dp)
             .alpha(if (task.completed) 0.55f else 1f),
         verticalAlignment = Alignment.CenterVertically
