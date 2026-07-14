@@ -1,5 +1,7 @@
 package com.tcoding.todoAppWithAi.ui.task
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,17 +14,22 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,16 +42,24 @@ import com.tcoding.todoAppWithAi.ui.theme.PrimaryBlue
 import com.tcoding.todoAppWithAi.ui.theme.SurfaceWhite
 import com.tcoding.todoAppWithAi.ui.theme.TextPrimary
 import com.tcoding.todoAppWithAi.ui.theme.TextSecondary
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 @Composable
 fun NewTaskScreen(
     formState: NewTaskFormState,
     onBackClick: () -> Unit,
+    onDescriptionChange: (String) -> Unit,
+    onDateSelected: (String) -> Unit,
+    onTimeSelected: (String) -> Unit,
     onCategorySelected: (TaskCategory) -> Unit,
     onPrioritySelected: (TaskPriority) -> Unit,
     onCreateClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -80,28 +95,89 @@ fun NewTaskScreen(
         SectionLabel(text = "Description (Optional)")
         Spacer(modifier = Modifier.height(10.dp))
 
-        Box(
+        OutlinedTextField(
+            value = formState.description,
+            onValueChange = onDescriptionChange,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(150.dp)
-                .clip(RoundedCornerShape(18.dp))
-                .background(SurfaceWhite)
-                .border(width = 1.dp, color = BorderSoft, shape = RoundedCornerShape(18.dp))
-                .padding(16.dp)
-        ) {
-            Text(
-                text = if (formState.description.isBlank()) "Add details, links, etc..." else formState.description,
-                color = TextSecondary,
-                fontSize = 24.sp,
+                .heightIn(min = 140.dp),
+            textStyle = TextStyle(
+                color = TextPrimary,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Medium
+            ),
+            placeholder = {
+                Text(
+                    text = "Add details, links, etc...",
+                    color = TextSecondary,
+                    fontSize = 20.sp
+                )
+            },
+            shape = RoundedCornerShape(18.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = SurfaceWhite,
+                unfocusedContainerColor = SurfaceWhite,
+                focusedBorderColor = PrimaryBlue,
+                unfocusedBorderColor = BorderSoft,
+                cursorColor = PrimaryBlue
             )
-        }
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            DateTimeBox(text = "Today", modifier = Modifier.weight(1f))
-            DateTimeBox(text = "Time", modifier = Modifier.weight(1f))
+            DateTimeBox(
+                text = formState.dueDateLabel,
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    val now = Calendar.getInstance()
+                    DatePickerDialog(
+                        context,
+                        { _, year, month, dayOfMonth ->
+                            val selectedDate = Calendar.getInstance().apply {
+                                set(year, month, dayOfMonth)
+                            }
+                            val today = Calendar.getInstance()
+                            val isToday =
+                                selectedDate.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
+                                    selectedDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)
+
+                            val label = if (isToday) {
+                                "Today"
+                            } else {
+                                SimpleDateFormat("dd MMM", Locale.getDefault()).format(selectedDate.time)
+                            }
+                            onDateSelected(label)
+                        },
+                        now.get(Calendar.YEAR),
+                        now.get(Calendar.MONTH),
+                        now.get(Calendar.DAY_OF_MONTH)
+                    ).show()
+                }
+            )
+            DateTimeBox(
+                text = formState.dueTimeLabel,
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    val now = Calendar.getInstance()
+                    TimePickerDialog(
+                        context,
+                        { _, hourOfDay, minute ->
+                            onTimeSelected(
+                                String.format(
+                                    Locale.getDefault(),
+                                    "%02d:%02d",
+                                    hourOfDay,
+                                    minute
+                                )
+                            )
+                        },
+                        now.get(Calendar.HOUR_OF_DAY),
+                        now.get(Calendar.MINUTE),
+                        true
+                    ).show()
+                }
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -164,20 +240,31 @@ private fun SectionLabel(text: String) {
 }
 
 @Composable
-private fun DateTimeBox(text: String, modifier: Modifier = Modifier) {
+private fun DateTimeBox(
+    text: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
             .background(SurfaceWhite)
             .border(width = 1.dp, color = BorderSoft, shape = RoundedCornerShape(16.dp))
-            .padding(vertical = 14.dp),
-        contentAlignment = Alignment.Center
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 16.dp)
     ) {
-        Text(
-            text = text,
-            color = TextPrimary,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 24.sp
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = text,
+                color = TextPrimary,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 18.sp
+            )
+            Text(text = "▾", color = TextSecondary, fontSize = 14.sp)
+        }
     }
 }

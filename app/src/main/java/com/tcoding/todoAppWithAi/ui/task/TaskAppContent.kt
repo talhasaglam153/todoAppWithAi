@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import com.tcoding.todoAppWithAi.model.AppScreen
 import com.tcoding.todoAppWithAi.model.NewTaskFormState
 import com.tcoding.todoAppWithAi.model.TaskCategory
+import com.tcoding.todoAppWithAi.model.TaskItem
 import com.tcoding.todoAppWithAi.model.sampleTasks
 
 @Composable
@@ -46,13 +47,36 @@ fun TaskAppContent() {
             NewTaskScreen(
                 formState = formState,
                 onBackClick = { currentScreen = AppScreen.TASK_LIST },
+                onDescriptionChange = { formState = formState.copy(description = it) },
+                onDateSelected = { formState = formState.copy(dueDateLabel = it) },
+                onTimeSelected = { formState = formState.copy(dueTimeLabel = it) },
                 onCategorySelected = {
                     formState = formState.copy(category = it)
                 },
                 onPrioritySelected = {
                     formState = formState.copy(priority = it)
                 },
-                onCreateClick = { currentScreen = AppScreen.TASK_LIST }
+                onCreateClick = {
+                    val title = formState.description.trim().ifBlank { "New Task" }
+                    val dueLabel = if (formState.dueTimeLabel == "Time") {
+                        formState.dueDateLabel
+                    } else {
+                        "${formState.dueDateLabel}, ${formState.dueTimeLabel}"
+                    }
+
+                    val newTask = TaskItem(
+                        id = (tasks.maxOfOrNull { it.id } ?: 0L) + 1L,
+                        title = title,
+                        dueLabel = dueLabel,
+                        category = formState.category,
+                        priority = formState.priority
+                    )
+
+                    tasks = listOf(newTask) + tasks
+                    selectedCategory = TaskCategory.ALL
+                    formState = NewTaskFormState()
+                    currentScreen = AppScreen.TASK_LIST
+                }
             )
         }
     }
