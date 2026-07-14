@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
             TodoAppWithAiTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
-                        name = "Android",
+                        name = "Androidd",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
